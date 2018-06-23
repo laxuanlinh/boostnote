@@ -1,0 +1,23 @@
+createdAt: "2018-06-04T08:22:57.148Z"
+updatedAt: "2018-06-08T01:31:04.424Z"
+type: "MARKDOWN_NOTE"
+folder: "d63afcce60d04356594e"
+title: "Primitive and reference types"
+content: '''
+  ## Primitive and reference types
+  ## Operators
+  ## Core Java APIs
+  ## Class design
+  ## Exception
+  
+  
+  
+  ## Comments
+  - Close the connection with final block
+  - Throw specific exceptions
+  - Method naming convention
+  
+'''
+tags: []
+isStarred: false
+isTrashed: true

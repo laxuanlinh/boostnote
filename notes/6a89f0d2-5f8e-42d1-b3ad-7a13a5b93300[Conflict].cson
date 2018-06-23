@@ -1,0 +1,419 @@
+createdAt: "2018-06-11T15:45:51.097Z"
+updatedAt: "2018-06-20T13:57:04.614Z"
+type: "MARKDOWN_NOTE"
+folder: "d63afcce60d04356594e"
+title: "Collections and generics"
+content: '''
+  ### Collections and generics
+  
+  - Method Arrays.asList() return an ArrayList but it's class Arrays.ArrayList, not java.util.ArrayList.
+  - The Arrays$ArrayList is backed by an array and fixed-sized, therefore any operation to change its size will throw exception. E.g:
+     ```
+    String[] names = {"Jim", "James"};
+    List list = Arrays.asList(names);
+    list.remove(1); //this will throw UnsupportedOperationException because Arrays$ArrayList is fixed-sized
+    ```
+  - The binarySearch() if it cannot find the object, it will return the negative - 1 of the index that the object is supposed to be in. E.g:
+  
+    ```
+    List list = Arrays.asList(1,3,5,6);
+    System.out.println(Collections.binarySearch(list, 4)); //this will return -3 because 4 is suppose to be at index 2
+    ```
+  
+  ## Working with Generics
+  
+  **Generic classes**
+  - Formal type parameter is the generic type. E.g
+  
+    ```
+    class Crate<T>{
+      private T contents;
+      public T emptyCrate(){
+        return content;
+      }
+      public void packCrate(T content){
+        this.content = content
+      }
+    }
+    ```
+  - The generics type T is available anywhere within the Crate class
+  - The naming convention of generic type is as follow:
+    - E for an element
+    - K for a map key
+    - V for a map value
+    - N for a number
+    - T for a generic data type
+    - S, U, V and so forth for multiple generic types
+    ```
+    Elephant  elephant = new Elephant();
+    Crate<Elephant> crate = new Crate();
+    crate.packCrate(elephant);
+    Elephant elephant2 = crate.emptyCrate();
+    ```
+    ```
+    class SizeLimitedCrate{
+      private T contents;
+      private U sizeLimit;
+      public SizeLimitedCrate(T content, U sizeLimit){
+        this.content = contents;
+        this.sizeLimit = sizeLimit;
+      }
+    }
+  
+    Elephant elephant = new Elephant();
+    Integer numPound = 15_000;
+    SizeLimitedCrate<Elephant, Integer> c1 = new SizeLimitedCrate<>(elephant, numPound);
+    ```
+  **Generic interfaces**
+  - Just like class, an interface can also declare formal type parameter. E.g:
+  
+    ```
+    public interface Shippable<T>{
+      void ship(T);
+    }
+    ```
+  - There are 3 ways to implement a generic interface.
+  - First is to specify the type. E.g:
+  
+    ```
+    public class Box implements Shippable<Robot>{
+      public void ship(Robot r){}
+    }
+    ```
+  - Second is to create a generic class. E.g:
+  
+    ```
+    public class Box<T> implements Shippable<T>{
+      public void ship(T t){} 
+    }
+    ```
+  - Third is to not specify the type at all. E.g:
+    ```
+    public class Box implements Shippable{
+      public void ship(Object object){};
+    }
+    ```
+  - Generic types have some limitations:
+    - You can't call the constructor new T(), because at runtime, the compiler doesn't know what type of that generic type is so it's not possible to know what T() is and if it even exists.
+    - You can't create an array of it because again, the compiler doesn't know what T is so it cannot initialize an array for it.
+    - You can't call *instanceof*  because of type eraser, all the generic type is compiled to Object, therefore, Integer or String are just the same as Object, *instanceof* will always return true anyway. But this can be fixed by using `Class<T>`. E.g:
+  
+    ```
+    class Crate<T>{
+      public T t;
+      public Crate(Class<T> tClass, T t){
+        if(tClass.isAssignableFrom(t.getClass)){
+          this.t = t;
+        }
+      }
+    }
+  
+    //this can be called like this
+    Crate<Integer> integerCrate = new Crate(Integer.class, 10);
+    ```
+    - You can't use primitive types as a generic type. This can be fixed by using wrapper classes
+    - You can't create static variable because the type of generic depends on the instance.
+  
+  **Generic methods**
+  - Unless the method is defined inside a class or interface that already declared the generic type, it will have to declare the generic right before the return type. E.g:
+    ```
+    public static <T> Crate<T> ship(T t){
+      return new Crate<T>();
+    }
+    ```
+    ```
+    public static T ship(T t){
+      return t; //THIS DOES NOT COMPILE BECAUSE T IS NOT DECLARED IN THE CLASS
+    }
+    ```
+  - We can call the method normally and the compiler will figure out which type we need, or we can specify the type. E.g:
+  
+    ```
+    Crate.<String>ship("string");
+    ```
+  - When generics is used in both class and method level, they're different types even though they have same name. E.g:
+  
+    ```
+    class Crate<T> {
+      public <T> void add(T t){             //this T that T in the class are different
+  
+      }
+    }
+  
+    Crate<Exception> crate = new Crate();
+    crate.add(new Object);
+    ```
+  **Type erasure**
+  - If a class, interface or method uses generics and specifies the type, Java compiler will enforce to use the proper type in that class or method, however this is just at compile time.
+  - At runtime, Java will replace all the reference to T to Object. E.g:
+    ```
+    class Crate<T> {
+      T t;
+      T check(){
+        return t;
+      }
+    }
+    ```
+    at runtime is replaced by:
+    ```
+    class Crate{
+      Object t;
+      Object check(){
+        return t;
+      }
+    }
+    ```
+  - This process is called type erasure, is when Java erase all the specifed types and replaces them with Object, therefore there is only 1 Crate.class is generated at runtime.
+  - Java compiler also provides cast when needed. E.g:
+  
+    ```
+    Robot robot = new Crate<Robot>().check();
+    ```
+    is compiled to:
+    ```
+    Robot robot = (Robot) new Crate().check();
+    ```
+    
+  **Interacting with Legacy Code**
+  - Collections that doesn't use generics are *raw collections*. E:g
+    ```
+    List list = new ArrayList(); 
+    ```
+  - If some of the code use generics but some doesn't, it may lead to problems. E.g:
+  
+    ```
+    public static void main(String... args){
+      List strings = new ArrayList(); //this list doesn't use generic
+      strings.add("hahahaha");
+      strings.add(new Integer(1));
+      check(strings)
+    }
+  
+    public static void check(List<String> strings){
+      for(String string : strings){ //this will throw ClassCastException
+        System.out.println(string);
+      }
+    }
+    ```
+  - Due to type erasure in `List<T>`, Java consider `List` and `List<String>` are just `List<Object>`, therefore it allows to call check(strings) even though method *check* use raw collection. 
+  - When the compiler senses that you are using legacy code that doesn't not use generics, it will warn you. 
+  - The use of raw collections can cause problems in other ways too. E.g:
+  
+    ```
+    public static main(String... args){
+      List<String> strings = new ArrayList();
+      strings.add("hahaha");
+      addNew(strings);
+      String string = strings.get(1); //ClassCastException
+    }
+    private void addNew(List array){
+      array.add(10);
+    } 
+    ```
+  
+  **Bounds**
+  - A *bounded parameter type* is a type that specify the bound for the generic type. 
+  - A *wildcard generic type* is an unknown generic type represented with question mark (?). E.g:
+    ```
+    List<? extends Object> list = new ArrayList<String>();
+    // ? is generic wildcard or wildcard generic type
+    // Object is bounded paramter type
+    ```
+  - There are 3 ways to use generic wildcard:
+    - Unbounded wildcard. E.g:
+      ```
+      List<?> list = new ArrayList<String>();
+      ```
+    - Wildcard with upper bound. E.g:
+      ```
+      List<? extends Exception> list = new ArrayList<IOException>();
+      ```
+    - Wildcard with lower bound. E.g:
+      ```
+      List<? super String> list = new ArrayList<Object>();
+      ```
+  - Wildcard can only be used to provide argument when calling the generic type and it's meant to be used only once, therefore it's cannot be used to define classes, methods or variables. E.g:
+    ```
+    class <?> Crate{  //DOES NOT COMPILE
+  
+    }
+    ```
+    ```
+    Crate<?> crate = new Crate<>();        //THIS COMPILES
+    ```
+  - Bound parameter type can be used with generic type. E.g:
+    ```
+    class <T extends Exception> Crate{
+  
+    }
+    ```
+  - Wildcard cannot be instantiated directly. E.g:
+    ```
+    List<?> list  = new ArrayList<?>(); //DOES NOT COMPILE
+    ```
+  ***Unbounded Wildcards***
+  - Unbounded wildcard represents any type. E.g:
+  
+    ```
+    public static void main(String[] args) {
+        List<String> strings = new ArrayList<>();
+        strings.add("hahaha");
+        addNew(strings);          //DOES NOT COMPILE, even String is a subclass of Object, List<String> is not subclass of List<Object>
+    }
+    public static void addNew(List<Object> strings){
+        strings.forEach(s->{
+            System.out.println(s);
+        });
+    }
+    ```
+  
+    ```
+      public static void main(String[] args) {
+          List<String> strings = new ArrayList<>();
+          strings.add("hahaha");
+          addNew(strings);
+      }
+      public static void addNew(List<?> strings){       //USE UNBOUNDED WILDCARD
+          strings.forEach(s->{
+              System.out.println(s);
+          });
+      }
+    ```
+  ***Upper-Bounded wildcard***
+  - When List use upper-bounded wildcard, it becomes immutable. E.g:
+    ```
+    List<? extends Exception> list = new ArrayList();
+    list.add(new IOException());          //DOES NOT COMPILE
+    ```
+  - The reason being Java doesn't know what type of subclasses of Exception we will use, it could be IOException, RuntimeException, etc ... and therefore forbid both.
+  - Therefore upper-bounded wildcard list is mostly useful when being used as paramter. E.g:
+    ```
+    public void iterateList(List<? extends Object> listObject){
+      for(Object object : listObject){
+        System.out.println(object);
+      }
+    }
+    ```
+  - The upper bound is like a anonymous class so it uses extends no matter the wildcard extends from a class or implement an interface
+  ***Lower-Bounded wildcards***
+  - Lower-bounded wildcard list is not immutable. E.g:
+  - Lower-bounded wildcard is usually used parameter in method. E.g:
+    ```
+    public void addNew(List<? super String> strings){
+        strings.add("hahaha");
+    }
+  
+    List<Object> objects = new ArrayList();
+    addNew(objects);
+    ```
+    but this doesn't work:
+    ```
+    List<? super String> strings = new ArrayList();
+    strings.add(new Object());      //DOES NOT COMPILE
+    ```
+    because `List<String>` cannot except an Object
+  
+  **Putting It All Together**
+  ```
+  class A{}
+  class B extends A{}
+  class C extends B{}
+  ```
+  ```
+  List<?> list = new ArrayList<A>();
+  List<? extends A> list = new ArrayList<A>(); 
+  List<? extends A> list = new ArrayList<B>(); 
+  List<? super A> list = new ArrayList<A>();
+  List<? extends B> list = new ArrayList<A>(); //DOES NOT COMPILE
+  List<? super B> list = new ArrayList<A>;
+  List<?> list = new ArrayList<? extends A>(); //DOES NOT COMPILE
+  ```
+  ```
+  List<? super B> list  = new ArrayList<A>();
+  list.add(new A()); //DOES NOT COMPILE 
+                            //because list might be A or B
+                            
+  B b = new B();
+  list.add(b); 
+  
+  A a = new B();
+  list.add(a); //DOES NOT COMPILE
+  ```
+  ```
+  <T> <? extends T> method(List<? extends T> list){     //DOES NOT COMPILE, RETURN TYPE CANNOT BE WILDCARD
+    return list.get(0);
+  }
+  ```
+  ```
+  public<B extends A> B method(List<B> list){           // <B extends A> is upper-bounded generic type, not wildcard
+    return new B();        //DOES NOT COMPILE
+                                  //even though B is the name of a class, but in the scope of this method
+                                  //it's just the name of generic type and it's not allowed to call the constructor
+  }
+  ```
+  
+  ```
+  public <X> void method(List<X extends B> list){       // DOES NOT COMPILE
+                                                                                  // <X extends B> is not generic type, it's wildcard and it must be <? extends B>
+  }
+  ```
+  
+  ```
+  public <X extends A> X method(){
+    return new A();       //DOES NOT COMPILE, 
+                                  //because X could be A or subclass of A, so returning A is not allowed
+                                  //returning any subclasses of A is also not allowed because they might not be related
+  }
+  ```
+  
+  ```
+  public <X super A> void method(){         //DOES NOT COMPILE, cannot use super here
+  
+  }
+  ```
+  
+  ## Using Lists, Sets, Maps and Queues
+  - List is a collection that allows duplicated values and can be accessed by an *int* index.
+  - Set is a collection of non-duplicated values.
+  - Queue is a collection that stores values in order to to process, queue can process in a first-in first-out order, but other orders are possible.
+  - Map stores non-duplicated values with keys. 
+  - List, Set, Queue are Collection but Map is not.
+  - *add(E object)* inserts a object to the collection and returns whether it's successful or not.
+  - *remove(Object object)* removes an object from a collection and returns whether it's successful.
+  - *clear()* discards all elements of a collection.
+  - *contains(Object object)* check if an object is in the collection.
+  
+  **List implementations**
+  - Reading an ArrayList is much faster than adding and removing.
+  - LinkedList is good for adding, removing or accessing the collection from the beginning to the end but accessing a random value is very slow.
+  - Vector is like ArrayList but much slower, don't use it.
+  - 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+'''
+tags: []
+isStarred: false
+isTrashed: false

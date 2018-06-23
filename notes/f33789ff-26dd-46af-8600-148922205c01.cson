@@ -1,0 +1,295 @@
+createdAt: "2018-06-03T05:06:28.139Z"
+updatedAt: "2018-06-07T13:30:16.094Z"
+type: "MARKDOWN_NOTE"
+folder: "d63afcce60d04356594e"
+title: "Design Patterns and Principles"
+content: '''
+  # Design Patterns and Principles
+  
+  ## Designing an interface
+  - Interfaces cannot extend classes and classes cannot extend interfaces.
+  - Interfaces are for collaboration. One individual can use others's codes without having to access the underlying implementation.
+  - 2 teams can agree on 1 standard interface. One team can work using that interface, the others can implement it. After finishing, they then can merge their work with full compatibility. 
+  - If one team cannot finish the implementation soon enough, the others can use mock object.
+  ---
+  ## Introducing to Functional Programming
+  - An functional interface is the interface that has one abstract method.
+  - It's recommended to mark a functional interface with ***@FuntionalInterface*** because if that interface has 0 or more than 1 abstract method, the compiler will not compile. Maybe other developer can add more methods to the functional interface and break the code. 
+  - When casting references, a cast from a subclass to superclass doesn't require explicit cast, but a cast from a superclass to a subclass requires a explicit cast.
+  - Even the compiler allows cast from a superclass to a subclass, there is still a chance it will throw ***ClassCastException*** at runtime if the object is not the type of reference. E.g:
+  ```
+  		Superclass sup = new Superclass();
+  		Subclass sub = (Subclass) sup;
+      //this will compile but throws exception at runtime because the object sup is of type Superclass, not type Subclass
+  ```
+  - This can be fixed by using instanceof
+  - Try casting 2 unrelated classes will result compilation error
+  
+  ## Understand design principles
+  - Class invariant is a property or a truth of a class that always remains even after the class is modified. *E.g: class Animal has property legs, the number of legs is always > 0. So that the setter must be designed so that this always remains true.*
+  - Getter and setter is always recommended even when there is no validating logic, because the setter's logic can be updated later without messing with other classes.
+  - Getter for boolean field can start with is or get. E.g: ***getBird()*** or ***isBird()***.
+  - Getter for Boolean wrapper class can only start with get
+  - is-a relationship is a property that a object is instance or data type of a class.
+  - If A is a B then any instances of A can be treated as instances of B
+  - In class design, applying is-a relationship helps avoid creating classes that contain contradictions. 
+  *E.g: Cat is a subclass of Pet, it has properties like name and claws. But Tiger is not a Pet, so it's not possible for Tiger to inherit from Pet. But Pet and Tiger can both inherit Feline. The problem here is that if we add another subclass to Pet like Dog, this will not make sense because Dog is not Feline. So Feline can have Cat and Tiger as subclasses while it inherits from Animal and so does Dog. Dog and Cat can implement interface Pet.*
+  - ***has-a*** is a relationship which an object has another object as property. Two objects may not have is-a  relationship but can still have has-a relationship.
+  - If an object has a ***has-a*** relationship with another object, all of its children will have that too. 
+  - In another word, if a superclass has a protected or public property, all of its children will have that too.
+  - Class composition is to combine 2 or many classes into 1 class.
+  - Class compostion can be thought as an alternative of inheritance when 2 classes cannot inherit each other. E.g: 
+  
+  ```
+  	class Flipper {
+  		public void flap(){};
+  	}
+  	class WebbedFeet{
+  		public void kick(){};
+  	}
+  	//even though 2 classes are about one part, they cannot inherit
+  	class Penguin{ //composition class
+  		Flipper flipper;
+  		WebbedFeet webbedFeet;
+  		public void float() { this.flipper.flap(); }
+  		public void kick() { this.webbedFeet.kick(); }
+  	}
+    ```
+    
+  - Object composition has some advantages over inheritance such as code reusability. Classes used to compose can be used somewhere else not related to this composite class. 
+  
+  ## Working with Design Pattern
+  
+  ### Singleton
+  - Singleton is the design pattern that creates only 1 instance of an object shared by many classes. E.g:
+  
+  ```
+  	public class HayStorage {
+  		private int quantity = 0;
+  		private HayStorage(){} //define a private constructor so that the default constructor won't be added
+  
+  		private static final HayStorage instance = new HayStorage(); //the instance that is shared by many classes
+  
+  		public static HayStorage getInstance(){
+  			return instance;
+  		}
+  
+  		public synchronized void addHay(int amount){
+  			quantity += amount; 
+  		}
+  
+  		public synchronized boolean removeHay(int amount){
+  			if(quantity < amount) return false;
+  			quantity -= amount;
+  			return true;
+  		}
+  	}
+  ```
+  - The method getInstance() is usually to get the instance of the class.
+  - Since the class has private constructor, it becomes final because there is no subclass can inherit from it because it cannot call super().
+  - Another way to create a singleton class is to use static initializer. E.g:
+  
+  ```
+  	public class HayStorage {
+  		private int quantity = 0;
+  		private static final HayStorage instance;
+  		private HayStorage(){};
+  		static{
+  			instance = new HayStorage;
+  			//other code
+  		}
+  	}
+  ```
+  - With static initializer way, we can add some more logic or handler exception if the constructor throws any.
+  - Lazy instantiation is that the instance won't be created until the getInstance() method is called. E.g:
+  
+  ```
+  	public class HayStorage{
+  		private int quantity = 0;
+  		private static final HayStorage instance;
+  
+  		private HayStorage(){}
+  
+  		public static HayStorage getInstance(){
+  			if(instance == null)
+  				instance = new HayStorage();
+  			return instance;
+  		}
+  	}
+    ```
+  - To ensure that only 1 instance is created, we use the keyword final to mark the instance. 
+  - But in lazy instantiation, since the getInstance() method create the instance, it's cannot be marked as final, so there is a chance that 2 or more instances are created by many threads. To ensure that only 1 instance is created, we use the modifier synchronized to mark getInstance() method so that only 1 thread can execute it at a time. E.g:
+  
+  ```
+  	public static synchronized HayStorage getInstance(){
+  		//code is here
+  	}
+  - Double checked locking is too check if synchronized is actually necessary in order to improve performance. E.g:
+  
+  
+  	class HayStorage{
+  		private static volatile HayStorage instance;
+  
+  		public static HayStorage (){
+  			if(instance == null){  //check if the instance is null
+  				synchronized(HayStorage.class){  //if the instance is null then call the synchronized block
+  					if(instance==null)  //check instance is null again to make sure by the time the thread executes this synchronized block, the instance still had not been instantiated before by a simultaneous thread
+  						instance = new HayStorage();
+  				}
+  			}
+  		}
+  	}
+  ```
+  ### Immutable object
+  - Immutable object is the object that cannot be modified.
+  - To create immutable object, we need to follow the rules:
+      - Properties are only set via a constructor.
+      - Mark all instance variables as final.
+      - Don't define any setter methods.
+      - Don't allow referenced mutable object to be modified.
+      - Prevent methods from being overridden.
+  - A referenced mutable object can still be modified using its own method. E.g:
+  
+  ```
+  	class Immutable{
+  		private final List<String> mutableList;
+  		public Immutable(List<String> mutableList){
+  			this.mutableList = new ArrayList(mutableList); //create a copy of the input 
+  		}
+  		public getMutableList(){
+  			return mutableList;
+  		}
+  	}
+  	//mutable list can still be modified by its own methods
+  	new Immutable(Lists.newArrayList()).getMutableList().clear();
+    ```
+  - To not let this happen, we need to create a wrapper method for it instead of returning the object.
+  - We can prevent methods from being overridden by marking the methods or class as final
+  - A reference value passed into the constructor needs to be copied and assigned to the referenced instance variable so that those references  won't point at the same object. E.g:
+  
+  ```
+  	class Immutable{
+  		private final List<String> mutableList;
+  		public Immutable(List<String> mutableList){
+  			this.mutableList = new ArrayList(mutableList); //create a copy of the input 
+  		}
+  	}
+  ```
+  ### Builder pattern
+  
+  - Buidler pattern is where an object is created by passing the parammeters into a builder object. E.g:
+  ```
+    public class Animal{
+      private final String name;
+      private final Integer numberOfLegs;
+      
+      public Animal(String name, Integer numberOfLegs){
+        this.name = name; this.numberOfLegs = numberOfLegs
+      }
+      
+      //getter
+    }
+    ```
+    
+    ```
+    public class AnimalBuilder{
+      private String name;
+      private Integer numberOfLegs;
+      public AnimalBuilder setName(String name){
+        this.name = name;
+        return this;
+      }
+      public AnimalBuilder setNumberOfLegs(Integer numberOfLegs){
+        this.numberOfLegs = numberOfLeg;
+        return this;
+      }
+      public Animal build(){
+        return new Animal(name, numberOfLegs);
+      }
+    }
+    ```
+    ```
+      Animal animal = new AnimalBuilder().setName("Snake").build();
+    ```
+  - Builder pattern helps when we add new parameters to the constructor, the client using it doesn't have to re-compile
+  - The build() method can have some logic to throw exception when some params missing or it can set the default values.
+  
+  ## Factory pattern
+  - The factory pattern is used to create objects based on the input at runtime. 
+  - It's supported by polymorphism. E.g:
+  
+  ```
+  class abstract Food{
+    private int quantity;
+    public String getName(){
+      return name;
+    }
+    public Food(int quantity){
+      this.quantity = quantity;
+    }
+    public abstract void consumed();
+  }
+  ```
+  ```
+  class Hay extends Food{
+    public Hay(int quantity){
+      super(quantify);
+    }
+    @Override
+    public void consumed(){
+      System.out.println(quantity+" Hay is being eaten");
+    }
+  }
+  ```
+  ```
+  class FoodFactory(){
+    public static Food getFood(String animal){
+      switch(animal){
+        case "Horse":
+          return new Hay(5);
+        case "Elephant":
+          return new Hay(10);
+      }
+      throw new UnsupportedOperationException("Unexpected type of animal);
+    }
+  }
+  ```
+  ```
+  Food food = FoodFactory.getFood("horse");
+  ```
+  - The constructor of the Food cannot be marked as *private* or *protected* because the FoodFactory cannot access that constructor.
+  - If we mark it *public* then the user can bypass the factory pattern. 
+  - The solution here is to make constructor default access and put the factory and all the food classes in a same pakage, so that classes outside of the package have to use the factory.
+  - This could lead to a problem if a food class has to be outside of the package, then it has to provide a *public* constructor
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+'''
+tags: [
+  "Java"
+  "Design"
+  "pattern"
+  "singleton"
+  "immutable"
+  "object"
+]
+isStarred: false
+isTrashed: false

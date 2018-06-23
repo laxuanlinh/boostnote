@@ -1,0 +1,43 @@
+createdAt: "2018-06-04T01:14:39.315Z"
+updatedAt: "2018-06-04T01:19:14.692Z"
+type: "MARKDOWN_NOTE"
+folder: "67415b03390fdead8ecc"
+title: "Kafka tool:"
+content: '''
+  ### Kafka tool:
+  Cluster Name = devtest
+   Kafka Clust Version = 0.10
+   Zookeeper Host = zookeeper1.eventstream-devtest.hq.local
+   Zookeeper Port = 2181
+   chroot path = /
+  
+  **Git:**        
+  [https://git.hq.local](git)
+  **Jira:**                        
+  [https://jira.ioof.com.au/secure/RapidBoard.jspa?rapidView=812](jira)
+  **Bamboo:**
+  [https://build.hq.local](build)
+  **Wiki:**                      
+  [https://hq](wiki)
+  **Mail:**
+  [https://webmail.ioof.com.au/owa](mail)
+  
+  
+  **P:\\DEV\\ASIS\\DEV_1\\Menu-Cache\\Products**
+  
+  TSP/16193077 - Accumulation member
+  TSP/03000020 - Pension Member
+  TSP/16280915 - Multiple investments - Accumulation member
+  16392697
+  16067553
+  
+  
+  https://security-authenticator-service.asis-dev1.hq.local/authenticate
+  
+  https://portfolio-movement-service.asis-dev1.hq.local/platform/TSP/account/16193077/portfolio/movement/292978959
+  
+  https://localhost:8443/platform/TSP/account/16280915/transactions?date-from=2018-04-15&date-to=2018-04-1816392697
+'''
+tags: []
+isStarred: false
+isTrashed: false

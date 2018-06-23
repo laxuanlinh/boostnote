@@ -1,0 +1,242 @@
+createdAt: "2018-06-03T05:27:30.753Z"
+updatedAt: "2018-06-04T00:54:57.899Z"
+type: "MARKDOWN_NOTE"
+folder: "d63afcce60d04356594e"
+title: "Advanced class design"
+content: '''
+  # Advanced class design
+  
+  ## Instanceof:
+  - instanceof operator is to check if a reference is a type of class or subclass or implementation of an interface. E.g: if(a instanceof B)
+  - If 2 unrelated classes use instanceof, the code will not compile. E.g: 
+  
+    `
+    A a = new A(); 
+    `
+    `
+    A instanceof C //will not compile because A and C are not related
+    `
+  - If instanceof is used with interface, it will compile and only assessed at runtime because the compiler doesn't know if the implementations of interface A are related to C. E.g: 
+  `interface A{};` 
+  `A a = new B();` 
+  `a instanceof C // still compile and returns false`
+  - We can invoke virtual methods but not virtual instance variable
+  	E.g: 
+    
+  		class A{
+  			String name = "a";
+  			void printName(){
+  				sout(name);
+  			}
+  		}
+  		class B{
+  			String name = "b";
+  		}
+  
+  		A a = new B();
+  		a.printName(); // will print a
+  		// but if class B overrides method printName, it will print b
+  
+  ## Override annotation:
+  - ***@Override*** is to tell the compiler the method is to override, it helps if the syntax is not correct
+  
+  ## Equal, hashCode and toString methods:
+  - Apache common lang has methods that help code toString, equals and hashCode methods. E.g: 
+  `
+    return toStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  `
+  `
+  	return EqualsBuilder.reflectionEquals(this, obj);
+  `
+  `
+  	return EqualsBuilder.appendSuper(super.equals(obj))
+                        .append(field1, obj.field1)
+                        .append(field2, obj.field2)
+                        .isEquals()
+  `
+  - If calling equals on 2 objects returns true then hashCode has to return the same value, but if calling equals returns false then hashCode doesn't necessarily returns different values. 
+  - Throughout the program, hashCode cannot be changed. 
+  - hashCode cannot have more variable than equals. 
+  - The easiest way to create hash code is to take 1 variable in the class and multiply with a prime number to make it more unique. E.g: return fieldKey*7+fieldKey.hashCode();
+  
+  ## Enum:
+  - Method values() of enum return an array of enum
+  - Enum constructors are private.
+  - Enum constructors can have parameter. E.g:
+  
+  
+  	public enum Season{
+  		SUMMER("Hot"),
+  		SPRING("Wet"),
+  		AUTUMN("Cool");
+  
+  		String temp;
+  		Season(String temp){
+  			this.temp = temp;
+  		}
+  	}
+  - Enum can also have methods. E.g:
+  	public enum Season{
+  		public String getTemp(){
+  			return "Something";
+  		}
+  	}
+  - When enum has parameter, it has to have semicolon at the end of values declaration.
+  - When an enum is instantiated, Java will construct all the enums so that the next time an enum is instantiated, it just only returns the already constructed enums. E.g
+  
+  
+  	public enum Season{
+  		SPRING,
+  		WINTER;
+  		Season(){
+  			sout("I'm constructing "+this);
+  		}
+  	}
+  
+  	Season season = Season.SPRING; //This will sout "I'm constructing SPRING" and "I'm constructing WINTER"
+  - Each enum class is considered to be an abstract class and the values in it are implementations of it. Therefore they can override the enum methods or implement abstract methods. E.g: 
+  
+  
+  	public enum Season{
+  		SPRING{ 
+  			public void test(){ sout("this is an implementation"); }     
+  			public void overrideMePlease() { sout("I'm overriding"); } 
+  		}
+  		abstract void test();
+  		void overrideMePlease(){
+  			sout("Please override me");
+  		}
+  	}
+  
+  Nested class:
+  - There are 4 types of nested class, nested class that is not static is called inner class.
+  - Member inner class is a class defined in another class at the same level as instance variable. 
+  - Local inner class is a class defined in a method.
+  - Anonymous inner class is a local inner class but doesn't have a name.
+  - A static nested class is defined at the same level as static variable. 
+  
+  - Member inner class has following properties: 
+      - Can be declared as public, private, protected or default
+      - Can extend classes or implement interfaces.
+      - Can be abstract or final
+      - Cannot have static properties (what??)
+      - Can access outer class private member. It can call the variable of outer class just like calling its own variable. E.g:
+  
+  
+  			class Outer{
+  				private String name;
+  				class Inner{
+  					void test(){
+  						sout(name);
+  					}
+  				}
+  			}
+  - Instantiating member inner class needs an instance of outer class so that it can call the inner constructor. E.g: 
+  		Outer outer  = new Outer();
+  		Outer.Inner inner = outer.new Inner();  //this looks so weird
+  
+  - Inner class can have same variable name as outer class. E.g:
+  
+  
+  		class Outer{
+  			String name = "Outer";
+  			class Inner{
+  				String name = "Inner";
+  				class InnerInner{
+  					String name = "InnerInner";
+  					void test(){
+  						sout(name); //InnerInner
+  						sout(this.name); //InnerInner
+  						sout(Inner.this.name); //Inner
+  						sout(Outer.this.name); //Outer
+  					}
+  				}
+  			}
+  		}
+  - Inner interface, just like inner class is allowed to be private, so that only the inner class can implement it.
+  - Local inner class has the following properties:
+      - It cannot have access modifier
+      - It cannot be static or have static members
+      - It can access all enclosing class members
+      - It cannot access local variables of a method unless they're final or effectively final. E.g:
+  
+  
+  		class Outer{
+  			private int width = 10;
+  			public void calculate(){
+  				final int length = 20;
+  				class Calculator{ //this one cannot have access modifier or static
+  					public void multiply(){  //this method cannot be static
+  						sout(length*width);
+  					}
+  				}
+  				//this call has to be made after class declaration
+  				Calculator  cal = new Calculator();
+  				cal.multiply(); 
+  			}
+  		}
+  - Local inner class only exists when the method is invoked and it ends when the method returns.
+  - Local inner class can only access final local variable because Java will generate a class file of it and there is no way a class can access other class's local variable. Therefore if the variable is final, Java can pass it to the inner class constructor, otherwise, the variable value can change anytime. 
+  - Up to Java 7, final key word still had had to be typed in, but from Java 8, if a local variable is used in inner class, it automatically becomes final. E.g:
+  
+  
+  		class Outer{
+  			public void test(){
+  				String name = "Linh"; //this is not declared as final
+  				class Display{
+  					public void display(){ sout(name); } //but it is used in local inner class
+  				}
+  				name = "Linh 2"; //compilation error, because name has been used in local inner class, it has to be effectively final
+  			}	
+  		}
+  - Effectively final means the variable is only set once
+  - A local anonymous class can extend either an abstract class or implement an interface, but it can't do both.
+  - Local anonymous class can be declared as an parameter of a method. E.g:
+  
+  
+  	abstract class Calculator{
+  		abstract void calculate();
+  	}
+  	void test(Calculator cal){
+  		cal.calculate();
+  	}
+  	//implementation of the abstract class can be passed in like this
+  	test(new Calculator(){ 
+  		@Override
+  		void calculate(){
+  			return;
+  		}
+  	});
+  
+  - Static nested class is not an inner class
+  - It can define static methods and variables.
+  - It can be instantiated without outer class instance.
+  - Therefore it needs an outer class instance to access outer class's members (because Java doesn't know what instance it's referring to)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  	
+  	
+  
+'''
+tags: []
+isStarred: false
+isTrashed: false
