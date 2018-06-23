@@ -1,5 +1,5 @@
 createdAt: "2018-06-11T15:45:51.097Z"
-updatedAt: "2018-06-20T13:57:04.614Z"
+updatedAt: "2018-06-23T09:08:10.822Z"
 type: "MARKDOWN_NOTE"
 folder: "d63afcce60d04356594e"
 title: "Collections and generics"
@@ -387,9 +387,51 @@ content: '''
   - Reading an ArrayList is much faster than adding and removing.
   - LinkedList is good for adding, removing or accessing the collection from the beginning to the end but accessing a random value is very slow.
   - Vector is like ArrayList but much slower, don't use it.
-  - 
   
+  **Working with List methods**
+  - **add(int index, Object object)** is to insert an element to a list. But if a list has no element, calling `add(0, "hahaha")` will not throw `IndexOutOfBoundException`.
+  - **set(int index, Object object)** is to set an element on the index. So if a list has no elements, calling `set(0, "haha")` will throw an `IndexOutOfBoundException`
   
+  **Comparing *Set* implementations**
+  - Set is used when you don't want duplicate values in the collection.
+  - `HashSet` is a common implementation, it uses `hashCode()`, it add an element and check it if it's in the set at the same time, but the tradeoff is that it cannot store the elements in an order.
+  - `TreeSet` stores values in a sorted tree structure, but adding and checking if an element is in the set is O(log n) so it's slower than `HashSet`.
+  
+  **Working with *Set* methods**
+  - `add()` method will return `false` if we add duplicate values. E.g:
+    ```
+    Set<String> set = new HashSet();
+    set.add("haha");    //TRUE
+    set.add("hehe");    //TRUE
+    set.add("haha");    //FALSE
+    set.add("123123");  //TRUE
+    for(String string : set) 
+      System.out.println(string); //["123", "haha", "hehe"]
+    ```
+    ```
+    Set<String> set = new HashSet();
+    set.add("haha");    //TRUE
+    set.add("hehe");    //TRUE
+    set.add("haha");    //FALSE
+    set.add("123123");  //TRUE
+    for(String string : set) 
+      System.out.println(string); //["haha", "hehe", "123123"]
+    ```
+  - `TreeSet` use `NavigableSet` which provides some methods:
+    - lower(E e) - Return element that < e or `null` if not found
+    - floor(E e) - Return element that =< e or `null` if not found
+    - ceiling(E e) - Return element that >= e or `null` if not found
+    - higher(E e) - Return element that > e or `null` if not found
+  
+    ```
+    NavigableSet<Integer> set = new TreeSet<>();
+    for (int i = 0; i < 20; i++)
+        set.add(i);
+    System.out.println(set.lower(10));    //9
+    System.out.println(set.floor(10));    //10
+    System.out.println(set.ceiling(20));  //null
+    System.out.println(set.higher(20));   //null
+    ```
   
   
   
