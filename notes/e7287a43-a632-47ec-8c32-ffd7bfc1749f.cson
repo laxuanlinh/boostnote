@@ -1,5 +1,5 @@
 createdAt: "2018-06-04T01:14:39.315Z"
-updatedAt: "2018-06-04T01:19:14.692Z"
+updatedAt: "2018-06-26T06:14:26.108Z"
 type: "MARKDOWN_NOTE"
 folder: "67415b03390fdead8ecc"
 title: "Kafka tool:"
@@ -31,6 +31,24 @@ content: '''
   16392697
   16067553
   
+  http://asis-task-queue-testing.hq.local:15672/
+  `correlation_id` correlation_id
+  `reply_to` reply_to
+  ```
+  {
+    "platformCode": "TSP",
+    "accountNumber": "16193077",
+    "dateFrom": "2018-05-20",
+    "dateTo": "2018-05-21",
+    "include": [
+      "InvestmentHoldings",
+      "AccountBalances",
+      "MovementTransactions",
+      "IncomeEntitlements",
+      "MatchCGTParcels"
+    ]
+  }
+  ```
   
   https://security-authenticator-service.asis-dev1.hq.local/authenticate
   
