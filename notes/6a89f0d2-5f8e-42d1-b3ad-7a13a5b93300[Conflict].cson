@@ -1,5 +1,5 @@
 createdAt: "2018-06-11T15:45:51.097Z"
-updatedAt: "2018-06-24T03:26:50.361Z"
+updatedAt: "2018-06-27T13:10:26.067Z"
 type: "MARKDOWN_NOTE"
 folder: "d63afcce60d04356594e"
 title: "Collections and generics"
@@ -433,69 +433,38 @@ content: '''
     System.out.println(set.higher(20));   //null
     ```
   
-  **Comparing *Queue* implementations**
-  - `LinkedList` is a list and a double-ended queue which means it can be inserted from start or end, but it's not very efficient as a `Queue`
-  - `ArrayDeque` is a pure `Queue` and it's more efficient.
+  **Comparing *Map* implementations**
+  - `HashMap` uses hash table to store keys and values in a hash table, so that it uses `hashCode()`. Inserting and retrieving items take constant time but there is no order.
+  - `TreeMap` stores values and keys in the sorted tree structure, but adding and checking if a key is present are slower.
   
-  **Working with *Queue* methods**
-  - `ArrayDeque` contains many methods:
-    - `boolean add(E e)` adds to the back of the queue and returns *true* or throws exception.
-    - `E element()` returns the next element or *null* if the queue is empty.
-    - `boolean offer(E e)` adds element to the back of the queue and return whether it's successful.
-    - `E remove()` removes the next element or throws exception if empty.
-    - `void push(E e)` adds an element to the front of the queue, `push(E e)` is not a `Queue` method but it's what makes a double-ended queue.
-    - `E peek()` returns the next element or *null* if empty.
-    - `E pop()` removes and returns the next element and throws exception if empty.
+  **Working with *Map* methods**
+  - `void clear()` removes all elements in the *Map*.
+  - `boolean isEmpty()` checks if *Map* is empty.
+  - `int size()` returns the size of the *Map*
+  - `V get(Object key)` returns the value of the key or *null*
+  - `V put(Object key, V value)` puts the value to the *Map* and returns the previous value or *null*
+  - `V remove(Object key)` removes and returns the element or *null* if there is none.
+  - `boolean containsKey(Object key)` checks if *Map* has the key.
+  - `boolean containsValue(V value)` checks if *Map* has the value.
+  - `Set<K> keySet()` returns a set of unique keys.
+  - `Collection<V> values()` returns a collection of values. 
+    ```
+    Map<String, Object> map = new HashMap<>();
+    map.put("name", "Linh");
+    map.put("age", 15);
+    map.put("address", "Ha Noi");
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    System.out.println(map.size());                       //3
+    System.out.println(map.isEmpty());                    //false
+    System.out.println(map.remove("name"));               //Linh
+    System.out.println(map.values());                     //["Ha Noi", 15]  
+    for (String key : map.keySet())                       
+        System.out.println(map.get(key));                 //Ha Noi     15
+    System.out.println(map.containsKey("name"));          //false
+    System.out.println(map.containsValue("Ha Noi"));      //true 
+    map.clear();                                       
+    System.out.println(map.remove("age"));                //null
+    ```
   
   
   
